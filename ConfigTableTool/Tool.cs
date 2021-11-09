@@ -11,35 +11,9 @@ namespace GDScriptConfigTableTool.ConfigTableTool
 {
     class Tool
     {
-
-
         public Tool()
         {
         }
-
-        public void read_excel(String path)
-        {
-            IWorkbook workBook = null;
-            workBook = new XSSFWorkbook(path);
-            ISheet sheet = workBook.GetSheetAt(0);
-            IRow r = sheet.GetRow(0);
-            ICell cell = r.GetCell(0);
-       
-            Console.WriteLine($"{cell.StringCellValue}");
-        }
-
-        public void write_excel(String path)
-        {
-            var workbook = new XSSFWorkbook();
-            var sheet = workbook.CreateSheet("test1");
-            var row = sheet.CreateRow(0);
-            var cell = row.CreateCell(0);
-            cell.SetCellValue("hi~");
-
-            var file = File.OpenWrite(path);
-            workbook.Write(file);
-        }
-
         
         public void ExportHeadOnlyExcelFile(String dir, String headDefinitionPath)
         {

@@ -35,13 +35,19 @@ namespace GDScriptConfigTableTool.ConfigTableTool
             var text = File.ReadAllText(path);
             definitionList = JsonConvert.DeserializeObject<List<DefinitionType>>(text);
 
-            // Check dupicate identity
             var set = new HashSet<String>();
             foreach (DefinitionType def in definitionList)
             {
+                // Check dupicate identity
                 if (set.Contains(def.id))
                 {
                     throw new DuplicateIndentityException($"Duplicate identity: {def.id} in definition: {path}");
+                }
+
+                // Check empty identity
+                if (def.id == null || def.id.Length == 0)
+                {
+                    throw new EmptyIndentity($"In definition: {path}");
                 }
             }
         }
@@ -57,5 +63,6 @@ namespace GDScriptConfigTableTool.ConfigTableTool
         }
 
         public class DuplicateIndentityException : Exception { public DuplicateIndentityException(String msg) : base(msg) { } }
+        public class EmptyIndentity : Exception { public EmptyIndentity(String msg) : base(msg) { } }
     }
 }
