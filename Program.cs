@@ -6,7 +6,15 @@ namespace GDScriptConfigTableTool
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            (new Program()).Run(args);
+        }
+
+        String baseDir = "J:/gg_project/GDScriptConfigTableTool/assets";
+        void Run(string[] args)
+        {
+            var hd = System.IO.Path.Combine(baseDir, "test_s1.json");
+            var tool = new ConfigTableTool.Tool();
+            tool.ExportHeadOnlyExcelFile(baseDir, hd);
         }
     }
 }
