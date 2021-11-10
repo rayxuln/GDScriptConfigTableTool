@@ -133,6 +133,59 @@ namespace GDScriptConfigTableTool.ConfigTableTool
             }
         }
 
+        public void ExportGDScript(String outputDir, String templateCode, String excelsDir, String defsDir)
+        {
+            Dictionary<String, Data> workbookNameDataMap = new Dictionary<string, Data>();
+            Dictionary<String, List<HeadDefinition>> workbookNameHeadDifinitionListMap = new Dictionary<string, List<HeadDefinition>>();
+
+            foreach (var fileName in Directory.EnumerateFiles(excelsDir))
+            {
+                if (fileName.EndsWith($".{EXCEL_EXT}"))
+                {
+                    var data = new Data();
+                    data.CreateWorkbookFromFile(Path.Combine(excelsDir, fileName));
+                    workbookNameDataMap[data.GetWorkbookName()] = data;
+                }
+            }
+
+            foreach (var fileName in Directory.EnumerateFiles(defsDir))
+            {
+                if (fileName.EndsWith($".{HEAD_DEFINITION_EXT}"))
+                {
+                    var headDefinition = new HeadDefinition(Path.Combine(defsDir, fileName));
+                    if (!workbookNameHeadDifinitionListMap.ContainsKey(headDefinition.WorkbookName))
+                    {
+                        workbookNameHeadDifinitionListMap[headDefinition.WorkbookName] = new List<HeadDefinition>();
+                    }
+                    workbookNameHeadDifinitionListMap[headDefinition.WorkbookName].Add(headDefinition);
+                }
+            }
+
+            foreach (var workbookName in workbookNameDataMap.Keys)
+            {
+                if (workbookNameHeadDifinitionListMap.ContainsKey(workbookName))
+                {
+                    var data = workbookNameDataMap[workbookName];
+                    var headDefinitionList = workbookNameHeadDifinitionListMap[workbookName];
+                    ExportGDScript(outputDir, templateCode, data, headDefinitionList);
+                }
+            }
+        }
+
+        public void ExportGDScript(String outputDir, String templateCode, Data data, List<HeadDefinition> headDefinitionList)
+        {
+            foreach (HeadDefinition headDefinition in headDefinitionList)
+            {
+                ExportGDScript(outputDir, templateCode, data, headDefinition);
+            }
+        }
+
+        public void ExportGDScript(String outputDir, String templateCode, Data data, HeadDefinition headDefinition)
+        {
+            Script script = new Script(templateCode);
+            script.Create(data, headDefinition);
+            script.SaveTo(Path.Combine(outputDir, script.FileName));
+        }
         
         public class InvalidHeadDefinitionFileName : Exception { public InvalidHeadDefinitionFileName(String msg) : base(msg) { } }
         public class HeadDefinitionClassIsNotSame : Exception { public HeadDefinitionClassIsNotSame(String msg) : base(msg) { } }

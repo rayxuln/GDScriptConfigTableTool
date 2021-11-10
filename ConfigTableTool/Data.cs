@@ -18,6 +18,7 @@ namespace GDScriptConfigTableTool.ConfigTableTool
         const int ID_ROW = 1;
         const int TYPE_ROW = 2;
         const int LOCK_ROW = 3;
+        const int DATA_ROW_START = 3;
 
         int defaultWidth = 230 * 24;
         HorizontalAlignment defaultAlignment = HorizontalAlignment.Center;
@@ -405,8 +406,44 @@ namespace GDScriptConfigTableTool.ConfigTableTool
             workbook.Write(f);
         }
 
+        public int GetRowCount(String sheetName)
+        {
+            var sheet = workbook.GetSheet(sheetName);
+            return sheet.LastRowNum - DATA_ROW_START + 1;
+        }
+
+        public int GetColumnById(String sheetName, String id)
+        {
+            var sheet = workbook.GetSheet(sheetName);
+            var idRow = sheet.GetRow(ID_ROW);
+            for (int i=idRow.FirstCellNum; i<idRow.LastCellNum; ++i)
+            {
+                var cell = idRow.GetCell(i);
+                if (cell == null) continue;
+                if (cell.StringCellValue == id) return i;
+            }
+            throw new IdentityNotFound($"id: {id} not exist in sheet: {sheetName}");
+        }
+
+        public bool IsRowExist(String sheetName, int rowIndex)
+        {
+            var sheet = workbook.GetSheet(sheetName);
+            return sheet.GetRow(DATA_ROW_START + rowIndex) != null;
+        }
+
+        public String GetValueAt(String sheetName, int rowIndex, String id)
+        {
+            var sheet = workbook.GetSheet(sheetName);
+            var row = sheet.GetRow(DATA_ROW_START + rowIndex);
+            if (row == null) return null;
+            var cell = (XSSFCell)row.GetCell(GetColumnById(sheetName, id));
+            if (cell == null) return null;
+            return cell.GetRawValue();
+        }
+
         public class FileExistException : Exception { public FileExistException(String msg) : base(msg) { } }
         public class RowNotStartAtZero : Exception { public RowNotStartAtZero(String msg) : base(msg) { } }
         public class EmptyIdentify : Exception { public EmptyIdentify(String msg) : base(msg) { } }
+        public class IdentityNotFound : Exception { public IdentityNotFound(String msg) : base(msg) { } }
     }
 }
