@@ -17,6 +17,16 @@ namespace GDScriptConfigTableTool.ConfigTableTool
         public Tool()
         {
         }
+
+        public String GenHeadDefinitionFileName(String name)
+        {
+            return $"{name}.{HEAD_DEFINITION_EXT}";
+        }
+
+        public String GenExcelFileName(String name)
+        {
+            return $"{name}.{EXCEL_EXT}";
+        }
         
         public void ExportHeadOnlyExcelFile(String dir, String headDefinitionPath)
         {

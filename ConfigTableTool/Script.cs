@@ -2,12 +2,23 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace GDScriptConfigTableTool.ConfigTableTool
 {
     public class Script
     {
         String codeTemplate;
+        Dictionary<String, bool> boolRawStringMap = new Dictionary<string, bool> {
+            {"✔", true },
+            {"×", false },
+            {"true", true },
+            {"false", false },
+            {"True", true },
+            {"False", false },
+            {"T", true },
+            {"F", false },
+        };
 
         String className;
         public String FileName
@@ -48,15 +59,52 @@ namespace GDScriptConfigTableTool.ConfigTableTool
             return builder.ToString();
         }
 
+        String ToGDScriptTypeHint(DefinitionType def)
+        {
+            switch (def.type)
+            {
+                case DefinitionType.Type.String:
+                    return "String";
+                case DefinitionType.Type.Real:
+                    return "float";
+                case DefinitionType.Type.Boolean:
+                    return "bool";
+                case DefinitionType.Type.Array:
+                    return "Array";
+                case DefinitionType.Type.Dictionary:
+                    return "Dictionary";
+            }
+            throw new UnsupportedDefType($"{def.type.ToString()}");
+        }
+
+        String ToGDScriptValue(String raw, DefinitionType def)
+        {
+            switch (def.type)
+            {
+                case DefinitionType.Type.String:
+                    return $"'{Regex.Escape(raw)}'";
+                case DefinitionType.Type.Real:
+                    return raw;
+                case DefinitionType.Type.Boolean:
+                    if (boolRawStringMap[raw]) return "true";
+                    else return "false";
+                case DefinitionType.Type.Array:
+                    return raw;
+                case DefinitionType.Type.Dictionary:
+                    return raw;
+            }
+            throw new UnsupportedDefType($"{def.type.ToString()}");
+        }
+
         String GenFieldDecList(HeadDefinition headDefinition)
         {
             const int INDENT = 1;
-            const String TEMP = "{0}var {1}";
+            const String TEMP = "{0}var {1}: {2}";
             StringBuilder builder = new StringBuilder();
             String indent = GenIndent(INDENT);
             foreach (DefinitionType def in headDefinition)
             {
-                builder.AppendLine(String.Format(TEMP, indent, def.id));
+                builder.AppendLine(String.Format(TEMP, indent, def.id, ToGDScriptTypeHint(def)));
             }
             return builder.ToString();
         }
@@ -65,7 +113,7 @@ namespace GDScriptConfigTableTool.ConfigTableTool
         {
             const int INDENT = 3;
             const String TEMP = "{0}DataType.new({{{1}}}),";
-            const String K_V_TEMP = "\"{0}\": \"{1}\",";
+            const String K_V_TEMP = "'{0}': {1},";
             StringBuilder builder = new StringBuilder();
             StringBuilder kvBuilder = new StringBuilder();
             String indent = GenIndent(INDENT);
@@ -77,7 +125,7 @@ namespace GDScriptConfigTableTool.ConfigTableTool
                 {
                     String value = data.GetValueAt(headDefinition.SheetName, i, def.id);
                     if (value == null) continue;
-                    kvBuilder.Append(String.Format(K_V_TEMP, def.id, value));
+                    kvBuilder.Append(String.Format(K_V_TEMP, def.id, ToGDScriptValue(value, def)));
                 }
                 if (kvBuilder.Length == 0) continue;
                 builder.AppendLine(String.Format(TEMP, indent, kvBuilder.ToString()));
@@ -133,6 +181,7 @@ namespace GDScriptConfigTableTool.ConfigTableTool
             }
             File.WriteAllText(path, sourceCode);
         }
-        
+
+        public class UnsupportedDefType : Exception { public UnsupportedDefType(String msg) : base(msg) { } }
     }
 }

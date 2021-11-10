@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "GDScriptConfigTableTool": {
+      "commandName": "Project",
+      "commandLineArgs": "export_all_excel -od J:\\gg_project\\GDScriptConfigTableTool\\assets\\excels -dd J:\\gg_project\\GDScriptConfigTableTool\\assets\\configs"
+    }
+  }
+}

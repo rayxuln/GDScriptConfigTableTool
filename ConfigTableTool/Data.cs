@@ -199,15 +199,18 @@ namespace GDScriptConfigTableTool.ConfigTableTool
             }
 
             ICell cell;
-            cell = nameRow.CreateCell(column);
+            cell = nameRow.GetCell(column);
+            if (cell == null) cell = nameRow.CreateCell(column);
             cell.SetCellValue(def.name);
             cell.CellStyle = GenNameStyle();
 
-            cell = idRow.CreateCell(column);
+            cell = idRow.GetCell(column);
+            if (cell == null) cell = idRow.CreateCell(column);
             cell.SetCellValue(def.id);
             cell.CellStyle = GenIdStyle();
 
-            cell = typeRow.CreateCell(column);
+            cell = typeRow.GetCell(column);
+            if (cell == null) cell = typeRow.CreateCell(column);
             cell.SetCellValue(def.type.ToString());
             cell.CellStyle = GenTypeStyle();
         }
@@ -225,7 +228,7 @@ namespace GDScriptConfigTableTool.ConfigTableTool
 
             var defaultColumnStyle = GenDefaultColumnStyle();
 
-            for (int j=0; j<headDefinition.GetDefinitionCount(); ++j)
+            for (int j = 0; j < headDefinition.GetDefinitionCount(); ++j)
             {
                 sheet.SetColumnWidth(j, defaultWidth);
                 sheet.SetDefaultColumnStyle(j, defaultColumnStyle);
@@ -297,7 +300,7 @@ namespace GDScriptConfigTableTool.ConfigTableTool
 
             var longestCellNum = 0;
             IRow firstRow = null;
-            for (int i=tempSheet.FirstRowNum; i<=tempSheet.LastRowNum; ++i)
+            for (int i = tempSheet.FirstRowNum; i <= tempSheet.LastRowNum; ++i)
             {
                 var row = tempSheet.GetRow(i);
                 if (row == null) continue;
@@ -307,12 +310,12 @@ namespace GDScriptConfigTableTool.ConfigTableTool
                     firstRow = row;
                 }
             }
-            
+
 
             Dictionary<String, int> idColumnMap = new Dictionary<String, int>();
             foreach (DefinitionType def in headDefinition)
             {
-                for (int i=0; i<firstRow.LastCellNum; ++i)
+                for (int i = 0; i < firstRow.LastCellNum; ++i)
                 {
                     var row = (XSSFRow)tempSheet.GetRow(ID_ROW);
                     var cell = (XSSFCell)row.GetCell(i);
@@ -336,6 +339,21 @@ namespace GDScriptConfigTableTool.ConfigTableTool
                     var column = idColumnMap[def.id];
                     columnUsedMap[column] = true;
                     CopyColumn(tempSheet, column, sheet, currentColumn);
+
+                    // check if id is valid or not
+                    var idRow = sheet.GetRow(ID_ROW);
+                    bool valid = true;
+                    if (idRow == null) valid = false;
+                    else
+                    {
+                        var cell = (XSSFCell)idRow.GetCell(currentColumn);
+                        if (cell == null) valid = false;
+                        else if (cell.GetRawValue() != def.id) valid = false;
+                    }
+                    if (valid == false)
+                    {
+                        CreateHeadAt(sheet, currentColumn, def);
+                    }
                 }
                 else // otherwise, create a new column
                 {
@@ -367,6 +385,9 @@ namespace GDScriptConfigTableTool.ConfigTableTool
 
         private void CopyColumn(XSSFSheet srcSheet, int srcColumn, XSSFSheet dstSheet, int dstColumn)
         {
+            dstSheet.SetDefaultColumnStyle(dstColumn, srcSheet.GetColumnStyle(srcColumn));
+            dstSheet.SetColumnWidth(dstColumn, srcSheet.GetColumnWidth(srcColumn));
+
             for (int i=srcSheet.FirstRowNum; i<=srcSheet.LastRowNum; ++i)
             {
                 var srcRow = (XSSFRow)srcSheet.GetRow(i);
@@ -402,8 +423,9 @@ namespace GDScriptConfigTableTool.ConfigTableTool
                     throw new FileExistException($"{path} is already there!");
                 }
             }
-            var f = File.OpenWrite(path);
+            var f = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
             workbook.Write(f);
+            f.Close();
         }
 
         public int GetRowCount(String sheetName)
@@ -431,6 +453,26 @@ namespace GDScriptConfigTableTool.ConfigTableTool
             return sheet.GetRow(DATA_ROW_START + rowIndex) != null;
         }
 
+        String GetCellRawValue(XSSFCell cell, CellType type)
+        {
+            switch (type)
+            {
+                case CellType.Blank:
+                    return String.Empty;
+                case CellType.Boolean:
+                    return (cell.BooleanCellValue ? "true" : "false");
+                case CellType.Error:
+                    return cell.ErrorCellString;
+                case CellType.Formula:
+                    return GetCellRawValue(cell, cell.CachedFormulaResultType);
+                case CellType.Numeric:
+                    return cell.NumericCellValue.ToString();
+                case CellType.String:
+                    return cell.StringCellValue;
+            }
+            throw new UnsupportedCellType($"{type}");
+        }
+
         public String GetValueAt(String sheetName, int rowIndex, String id)
         {
             var sheet = workbook.GetSheet(sheetName);
@@ -438,12 +480,13 @@ namespace GDScriptConfigTableTool.ConfigTableTool
             if (row == null) return null;
             var cell = (XSSFCell)row.GetCell(GetColumnById(sheetName, id));
             if (cell == null) return null;
-            return cell.GetRawValue();
+            return GetCellRawValue(cell, cell.CellType);
         }
 
         public class FileExistException : Exception { public FileExistException(String msg) : base(msg) { } }
         public class RowNotStartAtZero : Exception { public RowNotStartAtZero(String msg) : base(msg) { } }
         public class EmptyIdentify : Exception { public EmptyIdentify(String msg) : base(msg) { } }
         public class IdentityNotFound : Exception { public IdentityNotFound(String msg) : base(msg) { } }
+        public class UnsupportedCellType : Exception { public UnsupportedCellType(String msg) : base(msg) { } }
     }
 }

@@ -21,6 +21,8 @@ namespace GDScriptConfigTableTool.ConfigTableTool
             Real = 0,
             String,
             Boolean,
+            Array,
+            Dictionary,
         }
 
         [JsonConverter(typeof(StringEnumConverter))]

@@ -9,10 +9,13 @@
     "id": "test_name_2",
     "type": "Real"
   },
-  //{
-  //  "id": "test_name_3"
-  //},
   {
+    "name": "数组类型",
+    "id": "test_name_3",
+    "type": "Dictionary"
+  },
+  {
+    "name": "bu",
     "id": "test_name_4"
   }
 ]
