@@ -10,7 +10,7 @@ using Newtonsoft.Json.Converters;
 
 namespace GDScriptConfigTableTool.ConfigTableTool
 {
-    class DefinitionType
+    public class DefinitionType
     {
         public string name = "";
 
@@ -25,13 +25,50 @@ namespace GDScriptConfigTableTool.ConfigTableTool
 
         [JsonConverter(typeof(StringEnumConverter))]
         public Type type = Type.String;
+
+        public bool ignore = false;
     }
 
-    class HeadDefinition : IEnumerable
+    public class HeadDefinition : IEnumerable
     {
         List<DefinitionType> definitionList;
+
+        string[] name;
+        public String WorkbookName
+        {
+            get
+            {
+                return name[0];
+            }
+        }
+        public String SheetName
+        {
+            get
+            {
+                if (name.Length > 1) return name[1];
+                return name[0];
+            }
+        }
+        String sourcePath;
+        public String SourcePath
+        {
+            get
+            {
+                return sourcePath;
+            }
+        }
+
         public HeadDefinition(String path)
         {
+            var fileName = Path.GetFileNameWithoutExtension(path);
+            name = fileName.Split('_');
+            if (name.Length == 0)
+            {
+                throw new InvalidFileName($"{fileName} in path: {path}");
+            }
+
+            sourcePath = path;
+
             var text = File.ReadAllText(path);
             definitionList = JsonConvert.DeserializeObject<List<DefinitionType>>(text);
 
@@ -62,6 +99,7 @@ namespace GDScriptConfigTableTool.ConfigTableTool
             return definitionList.Count;
         }
 
+        public class InvalidFileName : Exception { public InvalidFileName(String msg) : base(msg) { } }
         public class DuplicateIndentityException : Exception { public DuplicateIndentityException(String msg) : base(msg) { } }
         public class EmptyIndentity : Exception { public EmptyIndentity(String msg) : base(msg) { } }
     }

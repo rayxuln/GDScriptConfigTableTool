@@ -1,9 +1,9 @@
 [
-  //{
-  //  "name": "测试名1",
-  //  "id": "test_name_1",
-  //  "type": "String"
-  //},
+  {
+    "name": "测试名1",
+    "id": "test_name_1",
+    "type": "String"
+  },
   {
     "name": "测试名2",
     "id": "test_name_2",
@@ -11,5 +11,8 @@
   },
   {
     "id": "test_name_3"
+  },
+  {
+    "id": "test_name_4"
   }
 ]
