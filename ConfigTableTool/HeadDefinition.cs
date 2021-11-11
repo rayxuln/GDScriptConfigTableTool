@@ -49,7 +49,15 @@ namespace GDScriptConfigTableTool.ConfigTableTool
         {
             get
             {
-                if (name.Length > 1) return name[1];
+                if (name.Length > 1)
+                {
+                    var temp = new List<String>();
+                    for (int i = 1; i < name.Length; ++i)
+                    {
+                        temp.Add(name[i]);
+                    }
+                    return String.Join('_', temp);
+                }
                 return name[0];
             }
         }
