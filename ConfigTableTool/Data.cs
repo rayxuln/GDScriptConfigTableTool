@@ -203,6 +203,19 @@ namespace GDScriptConfigTableTool.ConfigTableTool
             if (cell == null) cell = nameRow.CreateCell(column);
             cell.SetCellValue(def.name);
             cell.CellStyle = GenNameStyle();
+            if (def.comment != null)
+            {
+                if (cell.CellComment == null)
+                {
+                    var p = sheet.CreateDrawingPatriarch();
+                    cell.CellComment = p.CreateCellComment(new XSSFClientAnchor(0, 0, 0, 0, 2, 1, 4, 4));
+                }
+                cell.CellComment.String = new XSSFRichTextString(def.comment);
+            }
+            else
+            {
+                cell.RemoveCellComment();
+            }
 
             cell = idRow.GetCell(column);
             if (cell == null) cell = idRow.CreateCell(column);
@@ -245,16 +258,28 @@ namespace GDScriptConfigTableTool.ConfigTableTool
             int i = 0;
             foreach (DefinitionType def in headDefinition)
             {
-                ICell cell;
-                cell = nameRow.CreateCell(i);
+                XSSFCell cell;
+                cell = (XSSFCell)nameRow.CreateCell(i);
                 cell.SetCellValue(def.name);
                 cell.CellStyle = nameStyle;
+                if (def.comment != null)
+                {
+                    if (cell.CellComment == null)
+                    {
+                        var p = sheet.CreateDrawingPatriarch();
+                        cell.CellComment = p.CreateCellComment(new XSSFClientAnchor(0, 0, 0, 0, 2, 1, 4, 4));
+                    }
+                    cell.CellComment.String = new XSSFRichTextString(def.comment);
+                } else
+                {
+                    cell.RemoveCellComment();
+                }
 
-                cell = idRow.CreateCell(i);
+                cell = (XSSFCell)idRow.CreateCell(i);
                 cell.SetCellValue(def.id);
                 cell.CellStyle = idStyle;
 
-                cell = typeRow.CreateCell(i);
+                cell = (XSSFCell)typeRow.CreateCell(i);
                 cell.SetCellValue(def.type.ToString());
                 cell.CellStyle = typeStyle;
 
@@ -340,26 +365,23 @@ namespace GDScriptConfigTableTool.ConfigTableTool
                     columnUsedMap[column] = true;
                     CopyColumn(tempSheet, column, sheet, currentColumn);
 
-                    // check if id is valid or not
-                    var idRow = sheet.GetRow(ID_ROW);
-                    bool valid = true;
-                    if (idRow == null) valid = false;
-                    else
-                    {
-                        var cell = (XSSFCell)idRow.GetCell(currentColumn);
-                        if (cell == null) valid = false;
-                        else if (cell.GetRawValue() != def.id) valid = false;
-                    }
-                    if (valid == false)
-                    {
-                        CreateHeadAt(sheet, currentColumn, def);
-                    }
+                    //// check if id is valid or not
+                    //var idRow = sheet.GetRow(ID_ROW);
+                    //bool valid = true;
+                    //if (idRow == null) valid = false;
+                    //else
+                    //{
+                    //    var cell = (XSSFCell)idRow.GetCell(currentColumn);
+                    //    if (cell == null) valid = false;
+                    //    else if (cell.GetRawValue() != def.id) valid = false;
+                    //}
+                    //if (valid == false)
+                    //{
+                    //    CreateHeadAt(sheet, currentColumn, def);
+                    //}
                 }
-                else // otherwise, create a new column
-                {
-                    CreateHeadAt(sheet, currentColumn, def);
-                }
-
+                // always create a new head
+                CreateHeadAt(sheet, currentColumn, def);
                 currentColumn += 1;
             }
             // copy the remainings columns

@@ -29,6 +29,8 @@ namespace GDScriptConfigTableTool.ConfigTableTool
         public Type type = Type.String;
 
         public bool ignore = false;
+
+        public String comment = null;
     }
 
     public class HeadDefinition : IEnumerable
