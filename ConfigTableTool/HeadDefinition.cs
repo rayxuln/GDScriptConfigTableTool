@@ -52,6 +52,7 @@ namespace GDScriptConfigTableTool.ConfigTableTool
             }
         }
         String sourcePath;
+
         public String SourcePath
         {
             get
@@ -89,6 +90,11 @@ namespace GDScriptConfigTableTool.ConfigTableTool
                     throw new EmptyIndentity($"In definition: {path}");
                 }
             }
+        }
+
+        public bool IsUsingOneName()
+        {
+            return name.Length == 1;
         }
 
         public IEnumerator GetEnumerator()
