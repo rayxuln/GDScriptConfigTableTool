@@ -99,12 +99,27 @@ namespace GDScriptConfigTableTool.ConfigTableTool
             throw new UnsupportedDefType($"{def.type.ToString()}");
         }
 
+        String CEscape(String s)
+        {
+            s = s.Replace("\\", "\\\\");
+            s = s.Replace("\a", "\\a");
+            s = s.Replace("\b", "\\b");
+            s = s.Replace("\f", "\\f");
+            s = s.Replace("\n", "\\n");
+            s = s.Replace("\r", "\\r");
+            s = s.Replace("\t", "\\t");
+            s = s.Replace("\v", "\\v");
+            s = s.Replace("\'", "\\'");
+            s = s.Replace("\"", "\\\"");
+            return s;
+        }
+
         String ToGDScriptValue(String raw, DefinitionType def)
         {
             switch (def.type)
             {
                 case DefinitionType.Type.String:
-                    return $"'{Regex.Escape(raw)}'";
+                    return $"'{CEscape(raw)}'";
                 case DefinitionType.Type.Real:
                     return raw;
                 case DefinitionType.Type.Boolean:
