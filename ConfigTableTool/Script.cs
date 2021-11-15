@@ -95,6 +95,8 @@ namespace GDScriptConfigTableTool.ConfigTableTool
                     return "Array";
                 case DefinitionType.Type.Dictionary:
                     return "Dictionary";
+                case DefinitionType.Type.Variant:
+                    return String.Empty;
             }
             throw new UnsupportedDefType($"{def.type.ToString()}");
         }
@@ -120,14 +122,13 @@ namespace GDScriptConfigTableTool.ConfigTableTool
             {
                 case DefinitionType.Type.String:
                     return $"'{CEscape(raw)}'";
-                case DefinitionType.Type.Real:
-                    return raw;
                 case DefinitionType.Type.Boolean:
                     if (boolRawStringMap[raw]) return "true";
                     else return "false";
                 case DefinitionType.Type.Array:
-                    return raw;
                 case DefinitionType.Type.Dictionary:
+                case DefinitionType.Type.Variant:
+                case DefinitionType.Type.Real:
                     return raw;
             }
             throw new UnsupportedDefType($"{def.type.ToString()}");
@@ -136,14 +137,16 @@ namespace GDScriptConfigTableTool.ConfigTableTool
         String GenFieldDecList(HeadDefinition headDefinition)
         {
             const int INDENT = 1;
-            const String TEMP = "{0}var {1}: {2}";
+            const String TEMP = "{0}var {1}{2}";
+            const String TYPE_HINT_TEMP = ": {0}";
             StringBuilder builder = new StringBuilder();
             String indent = GenIndent(INDENT);
             foreach (DefinitionType def in headDefinition)
             {
                 if (!def.ignore)
                 {
-                    builder.AppendLine(String.Format(TEMP, indent, def.id, ToGDScriptTypeHint(def)));
+                    var type_hint = ToGDScriptTypeHint(def);
+                    builder.AppendLine(String.Format(TEMP, indent, def.id, (type_hint == String.Empty ? type_hint : String.Format(TYPE_HINT_TEMP, type_hint))));
                 }
             }
             return builder.ToString();

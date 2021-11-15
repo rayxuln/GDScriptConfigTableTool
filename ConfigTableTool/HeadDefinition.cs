@@ -23,6 +23,7 @@ namespace GDScriptConfigTableTool.ConfigTableTool
             Boolean,
             Array,
             Dictionary,
+            Variant,
         }
 
         [JsonConverter(typeof(StringEnumConverter))]
