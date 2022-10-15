@@ -126,20 +126,27 @@ namespace GDScriptConfigTableTool.ConfigTableTool
 
             foreach (String workbookName in hdMap.Keys)
             {
-                String path = Path.Combine(outputDir, $"{workbookName}.{EXCEL_EXT}");
-                if (File.Exists(path))
+                try
                 {
-                    // Reconstruct
-                    Data data = new Data();
-                    data.CreateWorkbookFromFile(path);
-                    data.ReconstructHead(hdMap[workbookName]);
-                    data.SaveTo(path, true);
-                } else
-                {
-                    // Export empty with head
-                    ExportHeadOnlyExcelFile(outputDir, hdMap[workbookName]);
+                    String path = Path.Combine(outputDir, $"{workbookName}.{EXCEL_EXT}");
+                    if (File.Exists(path))
+                    {
+                        // Reconstruct
+                        Data data = new Data();
+                        data.CreateWorkbookFromFile(path);
+                        data.ReconstructHead(hdMap[workbookName]);
+                        data.SaveTo(path, true);
+                    } else
+                    {
+                        // Export empty with head
+                        ExportHeadOnlyExcelFile(outputDir, hdMap[workbookName]);
+                    }
                 }
-
+                catch (Exception e)
+                {
+                    Console.WriteLine($"Something went wrong while exporting excel file: \"{workbookName}.{EXCEL_EXT}\" to dir: \"{outputDir}\"");
+                    throw;
+                }
             }
         }
 
@@ -192,9 +199,24 @@ namespace GDScriptConfigTableTool.ConfigTableTool
 
         public void ExportGDScript(String outputDir, String templateCode, Data data, HeadDefinition headDefinition)
         {
-            Script script = new Script(templateCode);
-            script.Create(data, headDefinition);
-            script.SaveTo(Path.Combine(outputDir, script.FileName));
+            try{
+                Script script = new Script(templateCode);
+                script.Create(data, headDefinition);
+                script.SaveTo(Path.Combine(outputDir, script.FileName));
+            }
+            catch (Exception e)
+            {
+                string className;
+                if (headDefinition.IsUsingOneName())
+                {
+                    className = $"{headDefinition.SheetName}";
+                } else
+                {
+                    className = $"{headDefinition.WorkbookName}_{headDefinition.SheetName}";
+                }
+                Console.WriteLine($"Something went wrong while exporting gdscript file: \"{className}\"");
+                throw;
+            }
         }
         
         public class InvalidHeadDefinitionFileName : Exception { public InvalidHeadDefinitionFileName(String msg) : base(msg) { } }
