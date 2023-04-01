@@ -91,7 +91,7 @@ options:
                         if (od == null || dd == null) return;
 
                         var tool = new GDScriptConfigTableTool.ConfigTableTool.Tool();
-                        tool.ExportExcelFile(od, dd);
+                        tool.ExportExcelFile(Path.GetFullPath(od), Path.GetFullPath(dd));
                     }
                     break;
                 case "export_all_gdscript":
@@ -103,7 +103,7 @@ options:
                         if (od == null || dd == null || ed == null || tp == null) return;
 
                         var tool = new GDScriptConfigTableTool.ConfigTableTool.Tool();
-                        tool.ExportGDScript(od, File.ReadAllText(tp), ed, dd);
+                        tool.ExportGDScript(Path.GetFullPath(od), File.ReadAllText(tp), Path.GetFullPath(ed), Path.GetFullPath(dd));
                     }
                     break;
                 case "export_excel":
@@ -118,19 +118,19 @@ options:
                         var tool = new GDScriptConfigTableTool.ConfigTableTool.Tool();
                         if (t != null)
                         {
-                            var hd = new GDScriptConfigTableTool.ConfigTableTool.HeadDefinition(Path.Combine(dd, tool.GenHeadDefinitionFileName(t)));
-                            tool.ExportExcelFile(od, new List<GDScriptConfigTableTool.ConfigTableTool.HeadDefinition> { hd });
+                            var hd = new GDScriptConfigTableTool.ConfigTableTool.HeadDefinition(Path.Combine(Path.GetFullPath(dd), tool.GenHeadDefinitionFileName(t)));
+                            tool.ExportExcelFile(Path.GetFullPath(od), new List<GDScriptConfigTableTool.ConfigTableTool.HeadDefinition> { hd });
                         } else
                         {
                             var hdList = new List<GDScriptConfigTableTool.ConfigTableTool.HeadDefinition>();
-                            foreach (var file in Directory.EnumerateFiles(dd))
+                            foreach (var file in Directory.EnumerateFiles(Path.GetFullPath(dd)))
                             {
                                 if (file.StartsWith(w))
                                 {
-                                    hdList.Add(new GDScriptConfigTableTool.ConfigTableTool.HeadDefinition(Path.Combine(dd, file)));
+                                    hdList.Add(new GDScriptConfigTableTool.ConfigTableTool.HeadDefinition(Path.Combine(Path.GetFullPath(dd), file)));
                                 }
                             }
-                            tool.ExportExcelFile(od, hdList);
+                            tool.ExportExcelFile(Path.GetFullPath(od), hdList);
                         }
                     }
                     break;
@@ -146,27 +146,27 @@ options:
                         if (t == null && w == null) Console.WriteLine("Lack of param: t or w!");
 
                         var tool = new GDScriptConfigTableTool.ConfigTableTool.Tool();
-                        tool.ExportGDScript(od, File.ReadAllText(tp), ed, dd);
+                        tool.ExportGDScript(Path.GetFullPath(od), File.ReadAllText(tp), Path.GetFullPath(ed), Path.GetFullPath(dd));
 
                         if (t != null)
                         {
-                            var hd = new GDScriptConfigTableTool.ConfigTableTool.HeadDefinition(Path.Combine(dd, tool.GenHeadDefinitionFileName(t)));
+                            var hd = new GDScriptConfigTableTool.ConfigTableTool.HeadDefinition(Path.Combine(Path.GetFullPath(dd), tool.GenHeadDefinitionFileName(t)));
                             var data = new GDScriptConfigTableTool.ConfigTableTool.Data();
-                            data.CreateWorkbookFromFile(Path.Combine(ed, tool.GenExcelFileName(hd.WorkbookName)));
-                            tool.ExportGDScript(od, File.ReadAllText(tp), data, hd);
+                            data.CreateWorkbookFromFile(Path.Combine(Path.GetFullPath(ed), tool.GenExcelFileName(hd.WorkbookName)));
+                            tool.ExportGDScript(Path.GetFullPath(od), File.ReadAllText(tp), data, hd);
                         } else
                         {
                             var data = new GDScriptConfigTableTool.ConfigTableTool.Data();
-                            data.CreateWorkbookFromFile(Path.Combine(ed, tool.GenExcelFileName(w)));
+                            data.CreateWorkbookFromFile(Path.Combine(Path.GetFullPath(ed), tool.GenExcelFileName(w)));
                             var hdList = new List<GDScriptConfigTableTool.ConfigTableTool.HeadDefinition>();
-                            foreach (var file in Directory.EnumerateFiles(dd))
+                            foreach (var file in Directory.EnumerateFiles(Path.GetFullPath(dd)))
                             {
                                 if (file.StartsWith(w))
                                 {
-                                    hdList.Add(new GDScriptConfigTableTool.ConfigTableTool.HeadDefinition(Path.Combine(dd, file)));
+                                    hdList.Add(new GDScriptConfigTableTool.ConfigTableTool.HeadDefinition(Path.Combine(Path.GetFullPath(dd), file)));
                                 }
                             }
-                            tool.ExportGDScript(od, File.ReadAllText(tp), data, hdList);
+                            tool.ExportGDScript(Path.GetFullPath(od), File.ReadAllText(tp), data, hdList);
                         }
                         
                     }

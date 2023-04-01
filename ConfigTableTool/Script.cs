@@ -8,6 +8,8 @@ namespace GDScriptConfigTableTool.ConfigTableTool
 {
     public class Script
     {
+        private const string IdentStr = "    ";
+        
         String codeTemplate;
         Dictionary<String, bool> boolRawStringMap = new Dictionary<string, bool> {
             {"✔", true },
@@ -76,7 +78,7 @@ namespace GDScriptConfigTableTool.ConfigTableTool
             StringBuilder builder = new StringBuilder();
             for (int i=0; i<num; ++i)
             {
-                builder.Append('\t');
+                builder.Append(IdentStr);
             }
             return builder.ToString();
         }

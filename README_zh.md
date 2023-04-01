@@ -2,7 +2,7 @@
 
 本工具使用C#编写，将Excel表格文件转换成GDScript脚本文件，方便在Godot中使用。
 
-请配合对应的[Godot插件]()使用
+请配合对应的[Godot插件](https://github.com/rayxuln/Config-Table-Plugin)使用
 
 ## 许可证
 

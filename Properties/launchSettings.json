@@ -1,7 +1,16 @@
 {
   "profiles": {
     "GDScriptConfigTableTool": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "commandLineArgs": ""
+    },
+    "GDScriptConfigTableTool_Excel": {
+      "commandName": "Project",
+      "commandLineArgs": "export_all_excel -od ../../../assets/excels -dd ../../../assets/defs"
+    },
+    "GDScriptConfigTableTool_GDScript": {
+      "commandName": "Project",
+      "commandLineArgs": "export_all_gdscript -od ../../../assets/configs -ed ../../../assets/excels -dd ../../../assets/defs -tp ../../../assets/templates/ConfigTable_template.gd"
     }
   }
 }
